@@ -1,0 +1,45 @@
+# In this file I present how to get the number of no_huddle by team, 
+#as well as how to obtain a dataframe for fourth down attempts against the franchises and the convertion rate of them. 
+
+
+# no huddle by attacking team
+pbp_wt_penalty %>%
+  group_by(posteam) %>%
+  filter(no_huddle== 1) %>%
+  summarise(no_huddle= n()) %>%
+  arrange(- no_huddle) %>%
+  print(n= Inf)
+
+# fourth down attempts by attacking team 
+off_4d<- pbp_wt_penalty %>%  #dataframe with play by play without penalties for the 2022 NFL Season 
+  filter(down== 4 & c(play_type== "run"|play_type== "pass")) %>%  #excluding plays of special teams 
+  group_by(posteam) %>%
+  summarise(attempts= n())
+  
+off_4d %>%
+  arrange(-attempts) %>%
+  print(n= Inf) # showing from the most to the least team with the most 4d attempts 
+  
+  
+### fourth down attempts against defense team
+pbp_wt_penalty %>%
+  filter(down== 4 & c(play_type== "run"|play_type== "pass")) %>%
+  group_by(defteam) %>%
+  summarise(attempts= n())
+  
+  
+### success converting 4th attempts for possession team 
+sucess<- pbp_wt_penalty %>%
+  filter(down== 4 & first_down== 1) %>%
+  group_by(posteam) %>%
+  summarise(succesful= n()) # dataframe to obtain the converted 4th attempts 
+
+f4_down<- off_4d %>%
+  inner_join(sucess, by= "posteam") #joining with the previous dataframe
+
+f4_down<- f4_down %>%
+  mutate(succ_rate= succesful/attempts)
+
+f4_down %>%
+  arrange(-succ_rate) %>%
+  print(n= Inf)
