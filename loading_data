@@ -1,0 +1,5 @@
+# the first step is load the data from nflfastR package. To do so, first install the package. 
+
+pbp <- load_pbp(2022) # for the season 2022
+pbp_wt_penalty <- pbp %>%
+  filter(penalty== 0) # excluding rows(plays) with penalties. 
